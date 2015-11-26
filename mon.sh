@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #openvz containers main directory (by default /var/lib/vz or /vz)
-maindir=/vz
+maindir=/var/lib/vz
 
 for veid in $(/usr/sbin/vzlist -o veid -H)
 do
