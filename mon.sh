@@ -58,14 +58,14 @@ do
   read_t=$(($read_s - $read_f))
   write_t=$(($write_s - $write_f))
   
-  mem_total=`vzctl exec $veid free -b |grep Mem:|cut -d":" -f2|awk '{print $1}'`
-  mem_usage=`vzctl exec $veid free -b |grep cache:|cut -d":" -f2|awk '{print $1}'`
-  loadave=`vzctl exec $veid cat /proc/loadavg | cut -d"/" -f1 |sed 's/.$//'`
+  mem_total=`vzlist -j $veid -o privvmpages | grep "limit" | awk '{print $2}' | cut -d"," -f1`
+  mem_usage=`vzlist -j $veid -o privvmpages | grep \"held\" | awk '{print $2}' | cut -d"," -f1`
+  loadave=`vzlist -j $veid | grep "laverage" | cut -d"]" -f1 | cut -d"[" -f2`
   hdduse=`df -h $maindir/root/$veid/ | grep root/$veid | awk '{print $5}'`
   hddtotal=`df -h $maindir/root/$veid/ | grep root/$veid | awk '{print $2}'`
   cpuusage=`vzctl exec $veid top -bn2 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%\id.*/\1/" | sed "s/.*, *\([0-9.]*\) \id.*/\1/" | tail -n1 | awk '{print 100-$1}'`
-  mem_total=$(($mem_total /1024 /1024))
-  mem_usage=$(($mem_usage /1024 /1024))
+  mem_total=$(($mem_total /256))
+  mem_usage=$(($mem_usage /256))
   
 
   echo "VEID: $veid  --- Read: $(($read_t / 1048576))MB/s Write: $(($write_t / 1048576))MB/s CPuUsage: $cpuusage% MemTotal: $mem_total MB MemUsed: $mem_usage MB LoadAverages: $loadave HddUsage: $hdduse HddTotal: $hddtotal"
